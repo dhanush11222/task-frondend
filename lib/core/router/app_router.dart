@@ -7,7 +7,6 @@ import '../../features/coins/presentation/bloc/coin_list_bloc.dart';
 import '../../features/coins/presentation/pages/coin_list_page.dart';
 import '../../features/market_stats/presentation/bloc/market_stats_bloc.dart';
 import '../../features/market_stats/presentation/pages/market_stats_page.dart';
-import '../../features/watchlist/presentation/bloc/watchlist_bloc.dart';
 import '../../features/watchlist/presentation/pages/watchlist_page.dart';
 import '../di/injection.dart';
 
@@ -54,28 +53,22 @@ class _HomeShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<WatchlistBloc, WatchlistState>(
-      listenWhen: (p, c) => p.messageId != c.messageId && c.message != null,
-      listener: (context, state) => ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('Watchlist update failed: ${state.message}'))),
-      // Back on Stats/Watchlist returns to Markets; back on Markets exits the app.
-      child: PopScope(
-        canPop: shell.currentIndex == 0,
-        onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) shell.goBranch(0);
-        },
-        child: Scaffold(
-          body: shell,
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: shell.currentIndex,
-            onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
-            destinations: const [
-              NavigationDestination(icon: Icon(Icons.show_chart_rounded), label: 'Markets'),
-              NavigationDestination(icon: Icon(Icons.insights_rounded), label: 'Stats'),
-              NavigationDestination(icon: Icon(Icons.star_rounded), label: 'Watchlist'),
-            ],
-          ),
+    // Back on Stats/Watchlist returns to Markets; back on Markets exits the app.
+    return PopScope(
+      canPop: shell.currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) shell.goBranch(0);
+      },
+      child: Scaffold(
+        body: shell,
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: shell.currentIndex,
+          onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.show_chart_rounded), label: 'Markets'),
+            NavigationDestination(icon: Icon(Icons.insights_rounded), label: 'Stats'),
+            NavigationDestination(icon: Icon(Icons.star_rounded), label: 'Watchlist'),
+          ],
         ),
       ),
     );

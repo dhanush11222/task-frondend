@@ -11,16 +11,18 @@ class MarketStats extends Equatable {
     required this.topLosers,
     this.marketCapChange24h,
     this.btcDominance,
+    this.ethDominance,
   });
 
   final double totalMarketCap;
   final double totalVolume24h;
   final double? marketCapChange24h;
   final double? btcDominance;
+  final double? ethDominance;
   final int activeCryptocurrencies;
   final List<Coin> topGainers;
   final List<Coin> topLosers;
 
   @override
-  List<Object?> get props => [totalMarketCap, totalVolume24h, btcDominance, topGainers, topLosers];
+  List<Object?> get props => [totalMarketCap, totalVolume24h, btcDominance, ethDominance, topGainers, topLosers];
 }

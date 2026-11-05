@@ -63,6 +63,8 @@ class _MarketStatsPageState extends State<MarketStatsPage> {
               padding: const EdgeInsets.all(16),
               children: [
                 _Overview(stats: s),
+                const SizedBox(height: 16),
+                _DominanceCard(stats: s),
                 const SizedBox(height: 24),
                 _MoversSection(title: 'Top gainers', coins: s.topGainers),
                 const SizedBox(height: 16),
@@ -92,11 +94,11 @@ class _Overview extends StatelessWidget {
         subColor: AppTheme.changeColor(change),
       ),
       _StatCard(label: '24h volume', value: Fmt.compactCurrency(stats.totalVolume24h)),
+      _StatCard(label: 'Active coins', value: Fmt.supply(stats.activeCryptocurrencies.toDouble())),
       _StatCard(
         label: 'BTC dominance',
         value: stats.btcDominance == null ? '—' : '${stats.btcDominance!.toStringAsFixed(1)}%',
       ),
-      _StatCard(label: 'Active coins', value: Fmt.supply(stats.activeCryptocurrencies.toDouble())),
     ];
     return GridView.count(
       crossAxisCount: 2,
@@ -161,6 +163,75 @@ class _MoversSection extends StatelessWidget {
         else
           for (final c in coins) CoinTile(coin: c),
       ],
+    );
+  }
+}
+
+/// Bitcoin / Ethereum / Others share of total market cap, with a segmented bar.
+class _DominanceCard extends StatelessWidget {
+  const _DominanceCard({required this.stats});
+
+  final MarketStats stats;
+
+  static const _btc = Color(0xFFF7931A);
+  static const _eth = Color(0xFF8C6CF2);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final btc = stats.btcDominance;
+    final eth = stats.ethDominance;
+    if (btc == null) return const SizedBox.shrink();
+    final ethValue = eth ?? 0;
+    final others = (100 - btc - ethValue).clamp(0, 100).toDouble();
+    final others0 = theme.colorScheme.outline;
+
+    Widget item(String label, double? value, Color color) => Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+                const SizedBox(width: 6),
+                Text(label, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+              ]),
+              const SizedBox(height: 4),
+              Text(value == null ? '—' : '${value.toStringAsFixed(1)}%',
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            ],
+          ),
+        );
+
+    int flex(double v) => (v * 10).round().clamp(1, 1000);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Dominance', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 16),
+            Row(children: [
+              item('Bitcoin', btc, _btc),
+              item('Ethereum', eth, _eth),
+              item('Others', others, others0),
+            ]),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: SizedBox(
+                height: 8,
+                child: Row(children: [
+                  Expanded(flex: flex(btc), child: Container(color: _btc)),
+                  if (eth != null) Expanded(flex: flex(ethValue), child: Container(color: _eth)),
+                  Expanded(flex: flex(others), child: Container(color: others0.withValues(alpha: 0.5))),
+                ]),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

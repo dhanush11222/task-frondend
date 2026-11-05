@@ -96,7 +96,13 @@ class CoinDetailBloc extends Bloc<CoinDetailEvent, CoinDetailState> {
   Future<void> _onChart(CoinChartRequested e, Emitter<CoinDetailState> emit) async {
     emit(state.copyWith(chartStatus: LoadStatus.loading, range: e.range));
     try {
-      final points = await _repo.getChart(coinId, e.range.days);
+      var points = await _repo.getChart(coinId, e.range.days);
+      final window = e.range.window;
+      if (window != null && points.isNotEmpty) {
+        final cutoff = points.last.timestamp.subtract(window);
+        final recent = points.where((p) => !p.timestamp.isBefore(cutoff)).toList();
+        if (recent.length >= 2) points = recent;
+      }
       emit(state.copyWith(chartStatus: LoadStatus.success, chart: points));
     } catch (err) {
       emit(state.copyWith(chartStatus: LoadStatus.failure, chartFailure: Failure.from(err)));

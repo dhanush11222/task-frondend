@@ -28,6 +28,27 @@ Coin coinFromJson(Map<String, dynamic> j) => Coin(
       sparkline: ((j['sparkline'] as List?) ?? const []).map((e) => (e as num).toDouble()).toList(),
     );
 
+/// Inverse of [coinFromJson]; used to persist watchlist snapshots locally.
+Map<String, dynamic> coinToJson(Coin c) => {
+      'id': c.id,
+      'symbol': c.symbol,
+      'name': c.name,
+      'image': c.image,
+      'currentPrice': c.currentPrice,
+      'marketCap': c.marketCap,
+      'marketCapRank': c.marketCapRank,
+      'totalVolume': c.totalVolume,
+      'priceChangePercentage24h': c.priceChangePercentage24h,
+      'high24h': c.high24h,
+      'low24h': c.low24h,
+      'circulatingSupply': c.circulatingSupply,
+      'totalSupply': c.totalSupply,
+      'maxSupply': c.maxSupply,
+      'ath': c.ath,
+      'athChangePercentage': c.athChangePercentage,
+      'sparkline': c.sparkline,
+    };
+
 List<Coin> coinsFromJson(dynamic list) =>
     (list as List).map((e) => coinFromJson(e as Map<String, dynamic>)).toList();
 
@@ -93,6 +114,7 @@ class CoinsRepository {
         totalVolume24h: _d(j['totalVolume24h']) ?? 0,
         marketCapChange24h: _d(j['marketCapChangePercentage24h']),
         btcDominance: _d(j['btcDominance']),
+        ethDominance: _d(j['ethDominance']),
         activeCryptocurrencies: (j['activeCryptocurrencies'] as num?)?.toInt() ?? 0,
         topGainers: coinsFromJson(j['topGainers']),
         topLosers: coinsFromJson(j['topLosers']),

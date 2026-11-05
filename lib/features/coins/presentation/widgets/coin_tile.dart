@@ -66,7 +66,9 @@ class CoinTile extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Text(coin.symbol.toUpperCase(),
+                      Text('${coin.symbol.toUpperCase()} · ${Fmt.compactCurrency(coin.marketCap)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
                     ],
                   ),
@@ -82,9 +84,18 @@ class CoinTile extends StatelessWidget {
                     Text(Fmt.price(coin.currentPrice),
                         style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
-                    Text(Fmt.percent(change),
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: changeColor, fontWeight: FontWeight.w600)),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (change != null && change != 0)
+                          Icon(change > 0 ? Icons.north_east_rounded : Icons.south_east_rounded,
+                              size: 12, color: changeColor),
+                        const SizedBox(width: 2),
+                        Text(Fmt.percent(change),
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: changeColor, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
                   ],
                 ),
               ],

@@ -23,6 +23,7 @@ Future<void> configureDependencies() async {
   }
 
   sl
+    ..registerSingleton<SharedPreferences>(prefs)
     ..registerLazySingleton<Dio>(
       () => Dio(
         BaseOptions(
@@ -35,7 +36,7 @@ Future<void> configureDependencies() async {
     )
     ..registerLazySingleton(() => ApiClient(sl()))
     ..registerLazySingleton(() => CoinsRepository(sl()))
-    ..registerLazySingleton(() => WatchlistRepository(sl()))
+    ..registerLazySingleton(() => WatchlistRepository(sl(), sl()))
     ..registerLazySingleton(() => WatchlistBloc(sl()))
     ..registerFactory(() => CoinListBloc(sl()))
     ..registerFactory(() => MarketStatsBloc(sl()))

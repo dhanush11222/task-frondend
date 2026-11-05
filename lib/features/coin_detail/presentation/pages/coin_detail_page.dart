@@ -35,23 +35,8 @@ class _DetailView extends StatelessWidget {
       buildWhen: (p, c) => p.detailStatus != c.detailStatus || p.detail != c.detail,
       builder: (context, state) {
         final bloc = context.read<CoinDetailBloc>();
-        final coin = state.detail?.coin;
         return Scaffold(
-          appBar: AppBar(
-            title: Text(coin?.name ?? 'Coin'),
-            actions: [
-              if (coin != null)
-                BlocSelector<WatchlistBloc, WatchlistState, bool>(
-                  selector: (s) => s.isWatched(coin.id),
-                  builder: (context, watched) => IconButton(
-                    tooltip: watched ? 'Remove from watchlist' : 'Add to watchlist',
-                    icon: Icon(watched ? Icons.star_rounded : Icons.star_outline_rounded,
-                        color: watched ? Colors.amber : null),
-                    onPressed: () => context.read<WatchlistBloc>().add(WatchlistToggled(coin)),
-                  ),
-                ),
-            ],
-          ),
+          appBar: AppBar(title: const Text('Details Coin'), centerTitle: true),
           body: switch (state.detailStatus) {
             LoadStatus.loading => const Center(child: CircularProgressIndicator()),
             LoadStatus.failure => ErrorView(
@@ -84,48 +69,79 @@ class _Content extends StatelessWidget {
     final coin = detail.coin;
     final theme = Theme.of(context);
     final change = coin.priceChangePercentage24h;
+    final changeColor = AppTheme.changeColor(change);
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       children: [
-        Row(
-          children: [
-            CoinAvatar(url: coin.image, symbol: coin.symbol, size: 44),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(Fmt.price(coin.currentPrice),
-                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  Text(
-                    '${coin.symbol.toUpperCase()} · Rank #${coin.marketCapRank ?? '-'}',
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
-                  ),
-                ],
-              ),
+        // Header + chart live in one card, like the reference design.
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CoinAvatar(url: coin.image, symbol: coin.symbol, size: 52),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(coin.symbol.toUpperCase(),
+                              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                          Text(coin.name.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall
+                                  ?.copyWith(color: theme.colorScheme.outline, letterSpacing: 0.5)),
+                        ],
+                      ),
+                    ),
+                    BlocSelector<WatchlistBloc, WatchlistState, bool>(
+                      selector: (s) => s.isWatched(coin.id),
+                      builder: (context, watched) => IconButton.outlined(
+                        tooltip: watched ? 'Remove from watchlist' : 'Add to watchlist',
+                        icon: Icon(watched ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                            color: watched ? AppTheme.gold : null),
+                        onPressed: () => context.read<WatchlistBloc>().add(WatchlistToggled(coin)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(Fmt.price(coin.currentPrice),
+                    style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    if (change != null && change != 0)
+                      Icon(change > 0 ? Icons.north_east_rounded : Icons.south_east_rounded,
+                          size: 14, color: changeColor),
+                    const SizedBox(width: 2),
+                    Text('${Fmt.percent(change)}  (24h)',
+                        style: TextStyle(color: changeColor, fontWeight: FontWeight.w600)),
+                    const Spacer(),
+                    Text('Rank #${coin.marketCapRank ?? '-'}',
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const _ChartSection(),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.changeColor(change).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(Fmt.percent(change),
-                  style: TextStyle(color: AppTheme.changeColor(change), fontWeight: FontWeight.bold)),
-            ),
-          ],
+          ),
         ),
-        const SizedBox(height: 20),
-        const _ChartSection(),
         const SizedBox(height: 20),
         Text('Market Stats', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
         _StatsGrid(coin: coin),
         if (detail.description.trim().isNotEmpty) ...[
           const SizedBox(height: 20),
-          Text('About ${coin.name}', style: theme.textTheme.titleMedium),
+          Text('About ${coin.name}',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           _ExpandableText(detail.description),
         ],
@@ -160,7 +176,7 @@ class _ChartSection extends StatelessWidget {
         return Column(
           children: [
             SizedBox(height: 240, child: body),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -169,6 +185,8 @@ class _ChartSection extends StatelessWidget {
                     label: Text(r.label),
                     selected: state.range == r,
                     showCheckmark: false,
+                    visualDensity: VisualDensity.compact,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 2),
                     onSelected: (_) => bloc.add(CoinChartRequested(r)),
                   ),
               ],
