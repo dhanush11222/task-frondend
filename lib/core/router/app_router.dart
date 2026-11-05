@@ -59,16 +59,23 @@ class _HomeShell extends StatelessWidget {
       listener: (context, state) => ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text('Watchlist update failed: ${state.message}'))),
-      child: Scaffold(
-        body: shell,
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: shell.currentIndex,
-          onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.show_chart_rounded), label: 'Markets'),
-            NavigationDestination(icon: Icon(Icons.insights_rounded), label: 'Stats'),
-            NavigationDestination(icon: Icon(Icons.star_rounded), label: 'Watchlist'),
-          ],
+      // Back on Stats/Watchlist returns to Markets; back on Markets exits the app.
+      child: PopScope(
+        canPop: shell.currentIndex == 0,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) shell.goBranch(0);
+        },
+        child: Scaffold(
+          body: shell,
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: shell.currentIndex,
+            onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+            destinations: const [
+              NavigationDestination(icon: Icon(Icons.show_chart_rounded), label: 'Markets'),
+              NavigationDestination(icon: Icon(Icons.insights_rounded), label: 'Stats'),
+              NavigationDestination(icon: Icon(Icons.star_rounded), label: 'Watchlist'),
+            ],
+          ),
         ),
       ),
     );

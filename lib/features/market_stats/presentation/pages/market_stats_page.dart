@@ -159,7 +159,7 @@ class _MoversSection extends StatelessWidget {
         if (coins.isEmpty)
           const Padding(padding: EdgeInsets.all(16), child: Text('No data'))
         else
-          for (final c in coins) CoinTile(coin: c, showRank: false),
+          for (final c in coins) CoinTile(coin: c),
       ],
     );
   }

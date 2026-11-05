@@ -25,6 +25,7 @@ Coin coinFromJson(Map<String, dynamic> j) => Coin(
       maxSupply: _d(j['maxSupply']),
       ath: _d(j['ath']),
       athChangePercentage: _d(j['athChangePercentage']),
+      sparkline: ((j['sparkline'] as List?) ?? const []).map((e) => (e as num).toDouble()).toList(),
     );
 
 List<Coin> coinsFromJson(dynamic list) =>

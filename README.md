@@ -30,12 +30,13 @@ Key decisions
 - Repositories are concrete classes injected through get_it (mocked directly in tests).
 
 ## Run
-1. Start the backend (see its README): `npm install && npm run dev` (port 3000).
+1. (Optional) Run the backend locally (see its README): `npm install && npm run dev`. Skip this to use the deployed one.
 2. Run the app:
 ```bash
 flutter pub get
-flutter run                                   # Android emulator -> http://10.0.2.2:3000/api, iOS sim -> localhost
-flutter run --dart-define=API_BASE_URL=http://<your-LAN-ip>:3000/api   # physical device
+flutter run                                   # uses the deployed backend: https://task-backend-ten.vercel.app/api
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000/api         # local backend, Android emulator
+flutter run --dart-define=API_BASE_URL=http://<your-LAN-ip>:3000/api    # local backend, physical device
 ```
 Cleartext HTTP is enabled for development (Android `usesCleartextTraffic`, iOS `NSAllowsLocalNetworking`). Use HTTPS in production.
 

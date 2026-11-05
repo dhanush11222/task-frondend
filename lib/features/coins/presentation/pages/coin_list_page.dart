@@ -53,7 +53,17 @@ class _CoinListPageState extends State<CoinListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Markets')),
+      appBar: AppBar(
+        toolbarHeight: 72,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Hi, Trader',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline)),
+            const Text('Markets'),
+          ],
+        ),
+      ),
       body: Column(
         children: [
           Padding(
@@ -61,6 +71,9 @@ class _CoinListPageState extends State<CoinListPage> {
             child: TextField(
               controller: _search,
               textInputAction: TextInputAction.search,
+              // Tap anywhere outside: drop focus (stops the blinking cursor, closes the keyboard).
+              onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+              onSubmitted: (_) => FocusManager.instance.primaryFocus?.unfocus(),
               onChanged: (v) {
                 setState(() {}); // toggles the clear button
                 context.read<CoinListBloc>().add(CoinListSearchChanged(v));
@@ -129,6 +142,7 @@ class _CoinListPageState extends State<CoinListPage> {
                       onRefresh: _refresh,
                       child: ListView.builder(
                         controller: _scroll,
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: state.coins.length + (state.hasMore || state.loadMoreFailed ? 1 : 0),
                         itemBuilder: (context, i) {

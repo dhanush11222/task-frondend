@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/coin_detail.dart';
 
@@ -15,9 +14,7 @@ class PriceChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final first = points.first.price;
-    final last = points.last.price;
-    final color = last >= first ? AppTheme.gain : AppTheme.loss;
+    final color = theme.colorScheme.primary; // gold line, like the reference design
 
     final prices = points.map((p) => p.price);
     final minY = prices.reduce((a, b) => a < b ? a : b);
@@ -34,7 +31,11 @@ class PriceChart extends StatelessWidget {
         maxY: maxY + pad,
         minX: 0,
         maxX: (points.length - 1).toDouble(),
-        gridData: const FlGridData(show: false),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (_) => FlLine(color: theme.colorScheme.outline.withValues(alpha: 0.18), strokeWidth: 1),
+        ),
         titlesData: const FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
         lineTouchData: LineTouchData(

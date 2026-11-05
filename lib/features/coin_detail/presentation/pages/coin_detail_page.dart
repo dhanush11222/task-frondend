@@ -120,7 +120,7 @@ class _Content extends StatelessWidget {
         const SizedBox(height: 20),
         const _ChartSection(),
         const SizedBox(height: 20),
-        Text('Statistics', style: theme.textTheme.titleMedium),
+        Text('Market Stats', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
         _StatsGrid(coin: coin),
         if (detail.description.trim().isNotEmpty) ...[

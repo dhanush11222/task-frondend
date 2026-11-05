@@ -18,6 +18,7 @@ class Coin extends Equatable {
     this.maxSupply,
     this.ath,
     this.athChangePercentage,
+    this.sparkline = const [],
   });
 
   final String id;
@@ -36,6 +37,9 @@ class Coin extends Equatable {
   final double? maxSupply;
   final double? ath;
   final double? athChangePercentage;
+
+  /// ~7-day price trend for list rows (empty when the backend doesn't send it).
+  final List<double> sparkline;
 
   @override
   List<Object?> get props => [id, currentPrice, marketCap, totalVolume, priceChangePercentage24h];
